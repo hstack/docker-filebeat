@@ -1,0 +1,10 @@
+filebeat:
+  prospectors:
+    - input_type: log
+      paths:
+        - /logs/slaves/*/frameworks/*/executors/*/runs/*/stdout
+        - /logs/slaves/*/frameworks/*/executors/*/runs/*/stderr
+output:
+  elasticsearch:
+    hosts: [ELASTICSEARCH_CLUSTER]
+    index: "ELASTICSEARCH_INDEX"

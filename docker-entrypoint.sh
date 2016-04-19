@@ -1,10 +1,17 @@
 #!/bin/sh
-set -e
+
+# Discover Elasticsearch config
+if [[ -n "${ELASTICSEARCH_MESOS_URL}" ]]; then
+  export ELASTICSEARCH_CLUSTER=$(curl -s ${ELASTICSEARCH_MESOS_URL}/v1/tasks | jq -c 'map(.http_address)')
+  export ELASTICSEARCH_HOST=$(curl -s ${ELASTICSEARCH_MESOS_URL}/v1/tasks | jq -r '.[0].http_address')
+fi
+
+# create index
+curl -XPUT http://${ELASTICSEARCH_HOST}/_template/filebeat -d@/etc/filebeat_index.json
+export ELASTICSEARCH_INDEX=filebeat
 
 # Render config file
-cat filebeat.yml | sed "s/ELASTICSEARCH_HOST/$ELASTICSEARCH_HOST/" | sed "s/ELASTICSEARCH_INDEX/$ELASTICSEARCH_INDEX/" > filebeat.yml.tmp
-cat filebeat.yml.tmp > filebeat.yml
-rm filebeat.yml.tmp
+cat /etc/filebeat.template.yml | sed "s/\[ELASTICSEARCH_CLUSTER\]/$ELASTICSEARCH_CLUSTER/" | sed "s/ELASTICSEARCH_INDEX/$ELASTICSEARCH_INDEX/" > /etc/filebeat.yml
 
 exec "$@"
 
