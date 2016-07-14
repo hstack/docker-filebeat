@@ -2,8 +2,7 @@ filebeat:
   prospectors:
     - input_type: log
       paths:
-        - /logs/slaves/*/frameworks/*/executors/*/runs/*/stdout
-        - /logs/slaves/*/frameworks/*/executors/*/runs/*/stderr
+        - PATH_GLOB
 output:
   elasticsearch:
     hosts: [ELASTICSEARCH_CLUSTER]

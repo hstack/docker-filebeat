@@ -11,7 +11,8 @@ curl -XPUT http://${ELASTICSEARCH_HOST}/_template/filebeat -d@/etc/filebeat_inde
 export ELASTICSEARCH_INDEX=filebeat
 
 # Render config file
-cat /etc/filebeat.template.yml | sed "s/\[ELASTICSEARCH_CLUSTER\]/$ELASTICSEARCH_CLUSTER/" | sed "s/ELASTICSEARCH_INDEX/$ELASTICSEARCH_INDEX/" > /etc/filebeat.yml
+cat /etc/filebeat.template.yml | sed "s/\[ELASTICSEARCH_CLUSTER\]/$ELASTICSEARCH_CLUSTER/" | sed "s/ELASTICSEARCH_INDEX/$ELASTICSEARCH_INDEX/" \
+  | sed "s#PATH_GLOB#$PATH_GLOB#" > /etc/filebeat.yml
 
 exec "$@"
 
