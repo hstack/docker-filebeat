@@ -4,13 +4,11 @@ ENV \
   GOPATH=/usr/lib/go/bin \
   GOBIN=/usr/lib/go/bin \
   PATH=$PATH:/usr/lib/go/bin:/usr/local/bin \
-  BEATS_VERSION=1.2.1
+  BEATS_VERSION=5.2.2 \
+  ELASTICSEARCH_INDEX=filebeat
 
 # install dependencies
-RUN apk update \
-    && apk add make git go curl
-
-RUN apk add bash
+RUN apk --no-cache add make git go curl libc-dev bash
 
 RUN echo "Building filebeat" \
     && mkdir -p /tmp/beats \
@@ -26,14 +24,10 @@ RUN echo "Building filebeat" \
     && GOPATH=/tmp/go-src GOOS=linux make \
     && mv /tmp/go-src/src/github.com/elastic/beats/filebeat/filebeat /usr/local/bin/filebeat
 
-RUN echo "Get tools" \
-    && curl -k -L https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -o /usr/local/bin/jq \
-    && chmod +x /usr/local/bin/jq
-
+COPY filebeat.yml filebeat.template.json /etc/filebeat/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY filebeat.template.yml /etc/filebeat.template.yml
-COPY filebeat_index.json /etc/filebeat_index.json
+RUN chmod +x /docker-entrypoint.sh
 
 VOLUME /logs
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["/usr/local/bin/filebeat", "-e", "-v", "-c", "/etc/filebeat.yml"]
+CMD ["/usr/local/bin/filebeat", "-e", "-v", "-c", "/etc/filebeat/filebeat.yml"]

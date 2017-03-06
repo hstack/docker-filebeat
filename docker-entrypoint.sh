@@ -1,18 +1,17 @@
 #!/bin/sh
 
-# Discover Elasticsearch config
-if [[ -n "${ELASTICSEARCH_MESOS_URL}" ]]; then
-  export ELASTICSEARCH_CLUSTER=$(curl -s ${ELASTICSEARCH_MESOS_URL}/v1/tasks | jq -c 'map(.http_address)')
-  export ELASTICSEARCH_HOST=$(curl -s ${ELASTICSEARCH_MESOS_URL}/v1/tasks | jq -r '.[0].http_address')
+# If the env variable FILEBEAT_CONFIG_URL is sent, then overwrite the default
+# filebeat config with the downloaded one
+if [[ -n "${FILEBEAT_CONFIG_URL}" ]]; then
+  echo "FILEBEAT_CONFIG_URL provided, downloading the new config..."
+  curl -o /etc/filebeat/filebeat.yml ${FILEBEAT_CONFIG_URL}
 fi
 
-# create index
-curl -XPUT http://${ELASTICSEARCH_HOST}/_template/filebeat -d@/etc/filebeat_index.json
-export ELASTICSEARCH_INDEX=filebeat
-
-# Render config file
-cat /etc/filebeat.template.yml | sed "s/\[ELASTICSEARCH_CLUSTER\]/$ELASTICSEARCH_CLUSTER/" | sed "s/ELASTICSEARCH_INDEX/$ELASTICSEARCH_INDEX/" \
-  | sed "s#PATH_GLOB#$PATH_GLOB#" > /etc/filebeat.yml
+# If the env variable FILEBEAT_TEMPLATE_URL is sent, then overwrite the default
+# filebeat template with the downloaded one
+if [[ -n "${FILEBEAT_TEMPLATE_URL}" ]]; then
+  echo "FILEBEAT_TEMPLATE_URL provided, downloading the new template..."
+  curl -o /etc/filebeat/filebeat.template.json ${FILEBEAT_TEMPLATE_URL}
+fi
 
 exec "$@"
-
