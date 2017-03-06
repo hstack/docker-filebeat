@@ -1,9 +1,0 @@
-filebeat:
-  prospectors:
-    - input_type: log
-      paths:
-        - PATH_GLOB
-output:
-  elasticsearch:
-    hosts: [ELASTICSEARCH_CLUSTER]
-    index: "ELASTICSEARCH_INDEX"

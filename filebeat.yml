@@ -1,0 +1,15 @@
+filebeat:
+  prospectors:
+    - input_type: log
+      paths:
+        - ${PATH_GLOB}
+
+output:
+  elasticsearch:
+    hosts: ["${ELASTICSEARCH_URL}:${ELASTICSEARCH_PORT}"]
+    index: "${ELASTICSEARCH_INDEX}"
+    template:
+      name: "filebeat"
+      path: "/etc/filebeat/filebeat.template.json"
+      overwrite: true
+      versions.2x.enabled: false
