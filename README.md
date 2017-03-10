@@ -1,26 +1,22 @@
 # Docker Filebeat image
-This image contains filebeat so you can send logs from a server to Logstash or Elasticsearch.
-The default configuration will send logs to a specific Logstash instance, so it's expecting some environment variables to know where is the Logstash instance.
+This image contains filebeat so you can send logs from a server to Elasticsearch.
 
-## Loading the Index Template in Elasticsearch
-Before saving logs in ElasticSearch you need to save the filebeat template that you can find in this repo
-```
-curl -XPUT 'http://elasticsearch_host:9200/_template/filebeat?pretty' -d@binary/filebeat.template.json
-```
+It's expecting some environment variables to know where is the ES instance:
+you must provide the `ELASTICSEARCH_URL` and `ELASTICSEARCH_PORT`.
 
+## Running the container
 
-## Running
-To start the container run
-```
-docker run -e "LOGSTASH_HOST=logstash.tld" -e "LOGSTASH_PORT=5001" -e "INDEX=logstash" fiunchinho/docker-filebeat
-```
+- To start the container run with the default filebeat and template configuration:
+  
+  ```
+  docker run -e "ELASTICSEARCH_URL=http://my-es.mydomain.com" -e "ELASTICSEARCH_PORT=9200" 
+  -e "PATH_GLOB=/var/log/" -d filebeats:5.2.2
+  ```
 
-If you want Filebeat to read from stdin, make the container interactive
-```
-docker run -i -e "LOGSTASH_HOST=logstash.tld" -e "LOGSTASH_PORT=5001" -e "INDEX=logstash" fiunchinho/docker-filebeat
-```
+- If you want to overwrite the default filebeat or template configuration:
 
-This image contains a sample configuration file that expects logs coming from stdin, but you can load your own configuration file by mounting the config file from your docker host:
-```
-docker run -v "/path/to/your/filebeat.yml:/filebeat.yml" -e "LOGSTASH_HOST=logstash.tld" -e "LOGSTASH_PORT=5001" -e "INDEX=logstash" fiunchinho/docker-filebeat
-```
+  ```
+  docker run -e "ELASTICSEARCH_URL=http://my-es.mydomain.com" -e "ELASTICSEARCH_PORT=9200" 
+  -e "PATH_GLOB=/var/log/" -e "FILEBEAT_CONFIG_URL=http://cdn.mydomain.com/my-filebeat-config.yml" 
+  -e "FILEBEAT_TEMPLATE_URL=http://cdn.mydomain.com/my-filebeat-template.json" -d filebeats:5.2.2
+  ```
