@@ -28,6 +28,6 @@ COPY filebeat.yml filebeat.template.json /etc/filebeat/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-VOLUME /logs
+VOLUME /logs/apps /logs/services
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/usr/local/bin/filebeat", "-e", "-v", "-c", "/etc/filebeat/filebeat.yml"]
